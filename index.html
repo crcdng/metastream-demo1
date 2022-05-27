@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>MetaStream (Demo)</title>
+  <link rel="stylesheet" type="text/css" href="lib/materialize.min.css" />
+  <link rel="stylesheet" type="text/css" href="styles.css" />
+  <script src="lib/aframe.min.js"></script>
+  <script src="lib/materialize.min.js"></script>
+  <script src="lib/hls.min.js"></script>
+
+  <script>
+    var hls;
+  AFRAME.registerComponent('hls_stream', {
+    init: function () {
+      var video = document.getElementById('webcam_stream');
+      if (Hls.isSupported()) {
+        hls = new Hls();
+        // hls.loadSource('https://livepeercdn.com/hls/d79fq7nxip2m6ks1/index.m3u8');
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED, function () {
+          video.play();
+        });
+      }
+      else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = 'https://livepeercdn.com/hls/d79fq7nxip2m6ks1/index.m3u8';
+        video.addEventListener('loadedmetadata', function () {
+          video.play();
+        });
+      }
+    }
+  });
+</script>
+
+</head>
+
+<body>
+
+  <div class="container">
+    <div id="aframescene">
+      <a-scene>
+        <a-assets>
+          <video id="webcam_stream" crossorigin="anonymous"></video>
+        </a-assets>
+
+        <a-video src="#webcam_stream" width="16" height="9" position="0 4.5 -20" hls_stream></a-video>
+
+        <a-box position="-1 0.5 -3" rotation="0 45 0" color="#4CC3D9"></a-box>
+        <a-sphere position="0 1.25 -5" radius="1.25" color="#EF2D5E"></a-sphere>
+        <a-cylinder position="1 0.75 -3" radius="0.5" height="1.5" color="#FFC65D"></a-cylinder>
+        <a-plane position="0 0 -4" rotation="-90 0 0" width="4" height="4" color="#7BC8A4"></a-plane>
+        <a-sky color="#ECECEC"></a-sky>
+      </a-scene>
+    </div>
+  </div>
+
+  <div id="enteraddress" class="modal tezblue">
+    <div class="modal-content">
+      <h4>MetaStream (Demo)</h4>
+      <p>
+        Follow the instructions on Livepeer.com to start a obtain an API key and start a live video stream with OBS.
+        Then enter your Livepeer Playback URL here.
+      </p>
+      <input id="address" type="text" class="validate" />
+      <label class="active" for="address">Playback URL</label>
+    </div>
+    <div class="modal-footer">
+      <a href="#!" id="enteradddress" class="modal-close waves-effect waves-green btn-flat">Enter</a>
+    </div>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const waElement = document.querySelector('#enteraddress');
+      const waInstance = M.Modal.init(waElement, { dismissible: false });
+      waInstance.open();
+
+      document.querySelector('#enteraddress')?.addEventListener('click', async function () {
+        const address = document.querySelector('#address')?.value.trim();
+        console.log(address);
+        console.log(hls);
+        hls.loadSource(address);
+      });
+    });
+
+  </script>
+</body>
+
+</html>
